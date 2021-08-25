@@ -6,3 +6,14 @@ export function transformRequest(data: any): any {
   }
   return data;
 }
+
+export function transformResponse(data: string) {
+  if (typeof data === "string") {
+    try {
+      data = JSON.parse(data);
+    } catch (err) {
+      // something
+    }
+  }
+  return data;
+}
