@@ -1,7 +1,7 @@
-import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from "./types";
-import { parseHeaders } from "./helpers/headers";
-import { transformResponse } from "./helpers/data";
-import { createError } from "./helpers/error";
+import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from "../types";
+import { parseHeaders } from "../helpers/headers";
+import { transformResponse } from "../helpers/data";
+import { createError } from "../helpers/error";
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
@@ -12,12 +12,12 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
     if (responseType) {
       request.responseType = responseType;
     }
-    
+
     if (timeout) {
       request.timeout = timeout;
     }
 
-    request.open(method.toUpperCase(), url, true);
+    request.open(method.toUpperCase(), url!, true);
 
     request.onerror = function handleError() {
       reject(createError("NetWork error", config, null, request));
