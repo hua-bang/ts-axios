@@ -127,10 +127,17 @@ function registerExtendRouter() {
   })
 }
 
+function registerInterceptorRrouter() {
+  router.get('/interceptor/get', function (req, res) {
+    res.end('hello ')
+  })
+}
+
+
 registerSimpleRouter();
 registerBaseRouter();
 registerErrorRouter();
 registerExtendRouter();
-
+registerInterceptorRrouter();
 
 app.use(router)
