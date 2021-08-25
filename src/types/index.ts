@@ -17,7 +17,7 @@ export interface AxiosConfig {
 }
 
 export interface AxiosRequestConfig extends AxiosConfig{
-  
+  timeout?: number
 }
 
 export interface AxiosResponseConfig extends AxiosConfig{
@@ -29,10 +29,18 @@ export interface AxiosResponse{
   status: number
   statusText: string
   headers: any
-  config: AxiosResponseConfig,
+  config: AxiosResponseConfig
   request: any
 }
 
 export interface AxiosPromise extends Promise<AxiosResponse> {
 
+}
+
+export interface AxiosError extends Error {
+  isAxiosError: boolean
+  config: AxiosRequestConfig
+  code?: string | null
+  request?: any,
+  response?: AxiosResponse
 }
