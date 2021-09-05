@@ -2,6 +2,7 @@ import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from "../types";
 import { parseHeaders } from "../helpers/headers";
 import { transformResponse } from "../helpers/data";
 import { createError } from "../helpers/error";
+import { isPlainObject } from "../helpers/utils";
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
 
@@ -53,7 +54,9 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
       if (data === null && name.toLocaleLowerCase() === "content-type") {
         delete headers[name];
       }
-      request.setRequestHeader(name, headers[name]);
+      if (!isPlainObject(headers[name])) {
+        request.setRequestHeader(name, headers[name]);
+      }
     })
     request.send(data);
 

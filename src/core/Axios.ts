@@ -1,6 +1,7 @@
-import { AxiosPromise, AxiosRequestConfig, AxiosResponse, AxiosResponseConfig, Method, RejectedFn, ResolvedFn } from "../types";
+import { AxiosConfig, AxiosPromise, AxiosRequestConfig, AxiosResponse, AxiosResponseConfig, Method, RejectedFn, ResolvedFn } from "../types";
 import dispatchRequest from "./dipatchRequest";
 import InterceptorManager from "./interceptorManager";
+import mergeConfig from "./mergeConfig";
 
 interface Interceptors {
   request: InterceptorManager<AxiosRequestConfig>
@@ -16,9 +17,11 @@ function assign(target: any, ...source: any) {
   return Object.assign(target, ...source);
 }
 export default class Axios {
+  defaults: AxiosRequestConfig
   interceptors: Interceptors
 
-  constructor() {
+  constructor(initConfig: AxiosRequestConfig) {
+    this.defaults = initConfig;
     this.interceptors = {
       request: new InterceptorManager<AxiosRequestConfig>(),
       response: new InterceptorManager<AxiosResponse>()
@@ -34,6 +37,8 @@ export default class Axios {
     } else {
       config = url;
     }
+
+    config = mergeConfig(this.defaults, config);
 
     const chain: PromiseChain<any>[] = [
       {
@@ -86,8 +91,6 @@ export default class Axios {
   patch(url: string, data?: any, config?: AxiosRequestConfig): AxiosPromise {
     return this._requestMethodWithData("patch", url, data, config);
   }
-
-
 
   _requestMethodWithData(method: Method, url: string, data?:any, config?: AxiosRequestConfig): AxiosPromise {
     return this.request(assign(config || {}, {
