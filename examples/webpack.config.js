@@ -1,6 +1,6 @@
-const fs = require('fs')
-const path = require('path')
-const webpack = require('webpack')
+const fs = require('fs');
+const path = require('path');
+const webpack = require('webpack');
 
 module.exports = {
   mode: 'development',
@@ -14,13 +14,13 @@ module.exports = {
    * entries 是一个对象，key 为目录名
    */
   entry: fs.readdirSync(__dirname).reduce((entries, dir) => {
-    const fullDir = path.join(__dirname, dir)
-    const entry = path.join(fullDir, 'app.ts')
+    const fullDir = path.join(__dirname, dir);
+    const entry = path.join(fullDir, 'app.ts');
     if (fs.statSync(fullDir).isDirectory() && fs.existsSync(entry)) {
-      entries[dir] = ['webpack-hot-middleware/client', entry]
+      entries[dir] = ['webpack-hot-middleware/client', entry];
     }
 
-    return entries
+    return entries;
   }, {}),
 
   /**

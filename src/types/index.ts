@@ -12,11 +12,11 @@ export type RequestMethod =
   | 'put'
   | 'PUT'
   | 'patch'
-  | 'PATCH'
+  | 'PATCH';
 
 export interface AxiosRequestConfig {
-  url: string
-  method?: RequestMethod
-  data?: any
-  params?: any
+  url: string;
+  method?: RequestMethod;
+  data?: any;
+  params?: any;
 }
