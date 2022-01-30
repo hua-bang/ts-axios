@@ -1,4 +1,4 @@
-import { isDate, isObject } from './utils';
+import { isDate, isPlainObject } from './utils';
 
 const ENCODE_MAP: Record<string, string> = {
   '%40': '@',
@@ -49,7 +49,7 @@ export function buildURL(url: string, params?: Record<string, any>): string {
     values.forEach(val => {
       if (isDate(val)) {
         val = val.toISOString();
-      } else if (isObject(val)) {
+      } else if (isPlainObject(val)) {
         val = JSON.stringify(val);
       }
       parts.push(`${encode(key)}=${encode(val)}`);
