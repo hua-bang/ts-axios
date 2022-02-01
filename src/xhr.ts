@@ -1,9 +1,11 @@
 import { AxiosRequestConfig, AxiosPromise, AxiosResponse } from './types';
 import { parseHeaders } from './helpers/headers';
+import { createError } from './helpers/error';
+import { HTTP_STATUS_ENUM } from './const/index';
 
 export default function xhr(config: AxiosRequestConfig): AxiosPromise {
   return new Promise((resolve, reject) => {
-    const { data = null, url, method = 'get', headers, responseType } = config;
+    const { data = null, url, method = 'get', headers, responseType, timeout } = config;
 
     const request = new XMLHttpRequest();
 
@@ -29,7 +31,37 @@ export default function xhr(config: AxiosRequestConfig): AxiosPromise {
         config,
         request
       };
-      resolve(response);
+      handleResponse(response);
+    };
+
+    function handleResponse(response: AxiosResponse) {
+      const { status } = response;
+      if (status >= HTTP_STATUS_ENUM.SUCCESS && status < HTTP_STATUS_ENUM.REDIRECTION) {
+        resolve(response);
+      } else {
+        reject(
+          createError(
+            `Request failed with status code ${response.status}`,
+            config,
+            null,
+            request,
+            response
+          )
+        );
+      }
+    }
+
+    request.onerror = () => {
+      reject(createError('Network error', config, null, request));
+    };
+
+    if (timeout) {
+      request.timeout = timeout;
+    }
+
+    // handle request timeout
+    request.ontimeout = () => {
+      reject(createError(`Timeout of ${timeout} ms exceeded`, config, 'ECONNABORTED', request));
     };
 
     Object.keys(headers).forEach(name => {
