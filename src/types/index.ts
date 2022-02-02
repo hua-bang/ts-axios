@@ -26,8 +26,8 @@ export interface AxiosRequestConfig {
 
 export type PartialAxiosRequestConfig = Partial<AxiosRequestConfig>;
 
-export interface AxiosResponse {
-  data: any;
+export interface AxiosResponse<T = any> {
+  data: T;
   status: number;
   statusText: string;
   headers: Record<string, string>;
@@ -35,7 +35,7 @@ export interface AxiosResponse {
   request: any;
 }
 
-export interface AxiosPromise extends Promise<AxiosResponse> {}
+export interface AxiosPromise<T = any> extends Promise<AxiosResponse<T>> {}
 
 export interface AxiosError extends Error {
   config: AxiosRequestConfig;
@@ -46,25 +46,25 @@ export interface AxiosError extends Error {
 }
 
 export interface Axios {
-  request(config: AxiosRequestConfig): AxiosPromise;
+  request<T>(config: AxiosRequestConfig): AxiosPromise<T>;
 
-  get(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+  get<T>(url: string, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 
-  delete(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+  delete<T>(url: string, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 
-  head(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+  head<T>(url: string, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 
-  options(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+  options<T>(url: string, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 
-  post(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise;
+  post<T>(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 
-  put(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise;
+  put<T>(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 
-  patch(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise;
+  patch<T>(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 }
 
 export interface AxiosInstance extends Axios {
-  (config: AxiosRequestConfig): AxiosPromise;
+  <T>(config: AxiosRequestConfig): AxiosPromise<T>;
 
-  (url: string, config: PartialAxiosRequestConfig): AxiosPromise;
+  <T>(url: string, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 }
