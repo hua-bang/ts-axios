@@ -24,6 +24,8 @@ export interface AxiosRequestConfig {
   timeout?: number;
 }
 
+export type PartialAxiosRequestConfig = Partial<AxiosRequestConfig>;
+
 export interface AxiosResponse {
   data: any;
   status: number;
@@ -41,4 +43,28 @@ export interface AxiosError extends Error {
   request?: any;
   response?: AxiosResponse;
   isAxiosError: boolean;
+}
+
+export interface Axios {
+  request(config: AxiosRequestConfig): AxiosPromise;
+
+  get(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+
+  delete(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+
+  head(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+
+  options(url: string, config?: PartialAxiosRequestConfig): AxiosPromise;
+
+  post(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise;
+
+  put(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise;
+
+  patch(url: string, data: any, config?: PartialAxiosRequestConfig): AxiosPromise;
+}
+
+export interface AxiosInstance extends Axios {
+  (config: AxiosRequestConfig): AxiosPromise;
+
+  (url: string, config: PartialAxiosRequestConfig): AxiosPromise;
 }
