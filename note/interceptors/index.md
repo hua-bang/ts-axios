@@ -83,3 +83,127 @@ export interface RejectedFn {
 
 这里我们定义了`AxiosInterceptorManager`泛型接口，因为`请求拦截器`和`响应拦截器`的`resolved`是不同的。
 
+### 代码实现
+
+```ts
+import { RejectedFn, ResolveFn } from '../types';
+
+interface Interceptor<T> {
+  resolved: ResolveFn<T>;
+  rejected?: RejectedFn;
+}
+
+export default class InterceptorManager<T> {
+  private interceptors: Array<Interceptor<T> | null>;
+
+  constructor() {
+    this.interceptors = [];
+  }
+
+  use(resolved: ResolveFn<T>, rejected?: RejectedFn): number {
+    const interceptor: Interceptor<T> = {
+      resolved,
+      rejected
+    };
+    this.interceptors.push(interceptor);
+    return this.interceptors.length - 1;
+  }
+
+  forEach(fn: (interceptor: Interceptor<T>, index?: number) => void): void {
+    this.interceptors.forEach((interceptor, index) => {
+      if (interceptor !== null) {
+        fn(interceptor, index);
+      }
+    });
+  }
+
+  eject(id: number): void {
+    if (this.interceptors[id]) {
+      this.interceptors[id] = null;
+    }
+  }
+}
+```
+
+在这里，我们定义了一个`InterceptorManager`泛型类，内部维护了一个私有属性`interceptors`, 它是一个数组，用来存储`拦截器`，并提供3个方法。
+
+- `use` 用于添加拦截器到`interceptors`中去，并放回一个唯一标识`id`.
+- `forEach`接口就是遍历`interceptors`用的，它支持传入一个函数，遍历过程中会调用这个函数，并把`interceptors`中的每一个`interceptor`作为函数参数。
+- `eject`就是删除一个拦截器。通过`id`进行删除。
+
+
+## 链式调用实现
+
+当我们实现号拦截器管理类，接下来就是在`Axios`中管理号`interceptors`属性。类型如下。
+
+```ts
+interface Interceptors {
+  request: InterceptorManage<AxiosRequestConfig>;
+  response: InterceptorManage<AxiosResponse>;
+}
+
+export default class Axios {
+  interceptors: Interceptors;
+
+  constructor() {
+    this.interceptors = {
+      request: new InterceptorManager<AxiosRequestConfig>(),
+      response: new InterceptorManager<AxiosResponse>()
+    };
+  }
+}
+```
+
+`Interceptors`类型中有2个属性
+- 请求拦截器管理实例
+- 响应拦截器管理实例
+
+接下来，我们修改`request`方法的逻辑，添加拦截器链式调用的逻辑。
+
+`core/Axios.ts`
+
+```ts
+interface PromiseChain {
+  resolved: ResolvedFn | ((config: AxiosRequestConfig) => AxiosPromise);
+  response?: RejectedFn;
+}
+
+request(url: any, config?: any): AxiosPromise {
+  if (typeof url === 'string') {
+    if (!config) {
+      config = {};
+    }
+    config.url = url;
+  } else {
+    config = url;
+  }
+
+  const chain: PromiseChain[] = [{
+    resolved: dispatchRequest,
+    rejected: undefined
+  }];
+
+  this.interceptors.request.forEach(interceptor => {
+    chain.unshift(interceptor);
+  });
+
+  this.interceptors.response.forEach(interceptor => {
+    chain.push(interceptor);
+  });
+
+  let promise = Promise.resolve(config);
+
+  while (chain.length) {
+    const { resolved, rejected } = chain.shift()!;
+    promise = promise.then(resolved, rejected);
+  }
+
+  return promise;
+}
+```
+
+首先，构造一个 `PromiseChain` 类型的数组 `chain`，并把 `dispatchRequest` 函数赋值给 `resolved` 属性；接着先遍历请求拦截器插入到 `chain` 的前面；然后再遍历响应拦截器插入到 `chain` 后面。
+
+接下来定义一个已经 `resolve` 的 `promise`，循环这个 `chain`，拿到每个拦截器对象，把它们的 `resolved` 函数和 `rejected` 函数添加到 `promise.then` 的参数中，这样就相当于通过 `Promise` 的链式调用方式，实现了拦截器一层层的链式调用的效果。
+
+注意我们拦截器的执行顺序，对于请求拦截器，先执行后添加的，再执行先添加的；而对于响应拦截器，先执行先添加的，后执行后添加的。
