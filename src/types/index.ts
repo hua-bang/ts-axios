@@ -78,6 +78,10 @@ export interface AxiosInstance extends Axios {
   <T>(url: string, config?: PartialAxiosRequestConfig): AxiosPromise<T>;
 }
 
+export interface AxiosStatic extends AxiosInstance {
+  create(config: PartialAxiosRequestConfig): AxiosInstance;
+}
+
 export interface AxiosInterceptorManager<T> {
   use(resolved: ResolveFn<T>, rejected?: RejectedFn): number;
 
